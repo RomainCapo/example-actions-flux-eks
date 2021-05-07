@@ -45,5 +45,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         # Build and tag the image
+        echo pwd
+        echo ls
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG app
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
