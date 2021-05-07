@@ -45,7 +45,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         docker pull debian
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push debian
 
     - name: Log out of Amazon ECR
       if: always()
