@@ -26,6 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # see: https://github.com/aws-actions/configure-aws-credentials
+    - name: Checkout
+      uses: actions/checkout@master
+      
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -33,18 +36,18 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
 
-    # see: https://github.com/aws-actions/amazon-ecr-login
-    - name: Log in to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
     - name: Build and tag the image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: myrep
-        IMAGE_TAG: ${{ github.sha }}
       run: |
         # Build and tag the image
-        cd app
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build \
+          -t $CONTAINER_IMAGE \
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
+           
+    # Add additional steps here like scanning of image
+
+    # Only push to registry on master
+    - name: Push
+      if: github.ref == 'refs/heads/master'
+      run: |
+        # Push image to AWS ECR
+        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
